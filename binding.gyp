@@ -30,7 +30,17 @@
                 "Sponge.c",
                 "tribus.c",
                 "sha1.c",
-                "sha3/sph_hefty1.c",
+		    
+		"phi1612.c",
+		"gost.c",
+                "sph/sph_skein.h",
+                "sph/sph_jh.h",  
+                "sph/sph_cubehash.h", 
+                "sph/sph_fungue.h",
+                "sph/sph_gost.h",
+                "sph/sph_echo.h",
+		
+		"sha3/sph_hefty1.c",
                 "sha3/sph_fugue.c",
                 "sha3/aes_helper.c",
                 "sha3/sph_blake.c",
