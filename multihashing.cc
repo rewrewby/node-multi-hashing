@@ -22,7 +22,6 @@ extern "C" {
     #include "keccak.h"
     #include "lyra2.h"
     #include "lyra2re.h"
-    #include "lyra2rev3.h"
     #include "lyra2z.h"
     #include "neoscrypt.h"
     #include "nist5.h"
@@ -78,6 +77,7 @@ NAN_METHOD(lyra2rev2) {
 
     info.GetReturnValue().Set(Nan::NewBuffer(output, 32).ToLocalChecked());
 }
+
 NAN_METHOD(lyra2rev3) {
 
     if (info.Length() < 2)

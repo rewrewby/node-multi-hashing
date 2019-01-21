@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 void lyra2rev2_hash(const char* input, char* output, uint32_t height);
+void lyra2rev3_hash(const char* input, char* output, uint32_t height);
 
 #ifdef __cplusplus
 }
