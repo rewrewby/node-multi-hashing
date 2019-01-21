@@ -8,8 +8,10 @@ extern "C" {
     #include "argon2.h"
     #include "bcrypt.h"
     #include "blake.h"
+    #include "blake2.h"
     #include "c11.h"
     #include "cryptonight.h"
+    #include "cuckoo.h"
     #include "dcrypt.h"
     #include "fresh.h"
     #include "fugue.h"
@@ -20,6 +22,7 @@ extern "C" {
     #include "keccak.h"
     #include "lyra2.h"
     #include "lyra2re.h"
+    #include "lyra2rev3.h"
     #include "lyra2z.h"
     #include "neoscrypt.h"
     #include "nist5.h"
@@ -41,6 +44,7 @@ extern "C" {
     #include "x14.h"
     #include "x15.h"
     #include "x16r.h"
+    #include "x16rt.h"
     #include "zr5.h"
     #include "yescrypt/yescrypt.h"
     #include "yescrypt/sha256_Y.h"
@@ -71,6 +75,25 @@ NAN_METHOD(lyra2rev2) {
     uint32_t input_len = Buffer::Length(target);
 
     lyra2rev2_hash(input, output);
+
+    info.GetReturnValue().Set(Nan::NewBuffer(output, 32).ToLocalChecked());
+}
+NAN_METHOD(lyra2rev3) {
+
+    if (info.Length() < 2)
+        return THROW_ERROR_EXCEPTION("You must provide two arguments.");
+
+    Local<Object> target = Nan::To<Object>(info[0]).ToLocalChecked();
+
+    if(!Buffer::HasInstance(target))
+        return THROW_ERROR_EXCEPTION("Argument should be a buffer object.");
+
+    char * input = Buffer::Data(target);
+    char *output = (char*) malloc(sizeof(char) * 32);
+
+    uint32_t input_len = Buffer::Length(target);
+
+    lyra2rev3_hash(input, output);
 
     info.GetReturnValue().Set(Nan::NewBuffer(output, 32).ToLocalChecked());
 }
@@ -152,6 +175,26 @@ NAN_METHOD(blake) {
     info.GetReturnValue().Set(Nan::NewBuffer(output, 32).ToLocalChecked());
 }
 
+NAN_METHOD(blake2b) {
+
+    if (info.Length() < 1)
+        return THROW_ERROR_EXCEPTION("You must provide one argument.");
+
+    Local<Object> target = Nan::To<Object>(info[0]).ToLocalChecked();
+
+    if(!Buffer::HasInstance(target))
+        return THROW_ERROR_EXCEPTION("Argument should be a buffer object.");
+
+    char * input = Buffer::Data(target);
+    char *output = (char*) malloc(sizeof(char) * 32);
+
+    uint32_t input_len = Buffer::Length(target);
+
+    blake2b_hash(input, output, input_len);
+
+    info.GetReturnValue().Set(Nan::NewBuffer(output, 32).ToLocalChecked());
+}
+
 NAN_METHOD(boolberry) {
 
     if (info.Length() < 2)
@@ -183,6 +226,43 @@ NAN_METHOD(boolberry) {
     uint64_t spad_len = Buffer::Length(target_spad);
 
     boolberry_hash(input, input_len, scratchpad, spad_len, output, height);
+
+    info.GetReturnValue().Set(Nan::NewBuffer(output, 32).ToLocalChecked());
+}
+
+NAN_METHOD(cuckoo) {
+
+    if (info.Length() < 2)
+        return THROW_ERROR_EXCEPTION("You must provide two arguments.");
+
+    Local<Object> target = Nan::To<Object>(info[0]).ToLocalChecked();
+    Local<Object> nonces = Nan::To<Object>(info[1]).ToLocalChecked();
+    //uint32_t height = 1;
+
+    if(!Buffer::HasInstance(target))
+        return THROW_ERROR_EXCEPTION("Argument 1 should be a buffer object.");
+
+    if(!Buffer::HasInstance(nonces))
+        return THROW_ERROR_EXCEPTION("Argument 2 should be a buffer object.");
+
+    /*
+    if(info.Length() >= 3) {
+        if(info[2]->IsUint32()) {
+            height = info[2]->ToUint32()->Uint32Value(); // TODO: This does not like Nan::To<uint32_t>(), the current way is deprecated
+        } else {
+            return THROW_ERROR_EXCEPTION("Argument 3 should be an unsigned integer.");
+        }
+    }
+    */
+
+    char * input = Buffer::Data(target);
+    char * pow_nonces = Buffer::Data(nonces);
+    char *output = (char*) malloc(sizeof(char) * 32);
+
+    //uint32_t input_len = Buffer::Length(target);
+    uint64_t nonces_len = Buffer::Length(nonces);
+
+    cuckoo_hash(input, pow_nonces, nonces_len, output);
 
     info.GetReturnValue().Set(Nan::NewBuffer(output, 32).ToLocalChecked());
 }
@@ -622,6 +702,26 @@ NAN_METHOD(x16r) {
     info.GetReturnValue().Set(Nan::NewBuffer(output, 32).ToLocalChecked());
 }
 
+NAN_METHOD(x16rt) {
+
+     if (info.Length() < 1)
+        return THROW_ERROR_EXCEPTION("You must provide one argument.");
+
+     Local<Object> target = Nan::To<Object>(info[0]).ToLocalChecked();
+
+     if(!Buffer::HasInstance(target))
+        return THROW_ERROR_EXCEPTION("Argument should be a buffer object.");
+
+     char * input = Buffer::Data(target);
+    char *output = (char*) malloc(sizeof(char) * 32);
+
+     uint32_t input_len = Buffer::Length(target);
+
+     x16rt_hash(input, output, input_len);
+
+     info.GetReturnValue().Set(Nan::NewBuffer(output, 32).ToLocalChecked());
+}
+
 NAN_METHOD(fresh) {
 
     if (info.Length() < 1)
@@ -686,6 +786,7 @@ NAN_METHOD(phi1612) {
 NAN_MODULE_INIT(init) {
     Nan::Set(target, Nan::New("lyra2z").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(lyra2z)).ToLocalChecked());
     Nan::Set(target, Nan::New("lyra2rev2").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(lyra2rev2)).ToLocalChecked());
+    Nan::Set(target, Nan::New("lyra2rev3").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(lyra2rev3)).ToLocalChecked());
     Nan::Set(target, Nan::New("quark").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(quark)).ToLocalChecked());
     Nan::Set(target, Nan::New("x11").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(x11)).ToLocalChecked());
     Nan::Set(target, Nan::New("scrypt").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(scrypt)).ToLocalChecked());
@@ -697,6 +798,7 @@ NAN_MODULE_INIT(init) {
     Nan::Set(target, Nan::New("groestl").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(groestl)).ToLocalChecked());
     Nan::Set(target, Nan::New("groestlmyriad").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(groestlmyriad)).ToLocalChecked());
     Nan::Set(target, Nan::New("blake").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(blake)).ToLocalChecked());
+    Nan::Set(target, Nan::New("blake2b").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(blake2b)).ToLocalChecked());
     Nan::Set(target, Nan::New("fugue").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(fugue)).ToLocalChecked());
     Nan::Set(target, Nan::New("qubit").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(qubit)).ToLocalChecked());
     Nan::Set(target, Nan::New("hefty1").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(hefty1)).ToLocalChecked());
@@ -708,9 +810,11 @@ NAN_MODULE_INIT(init) {
     Nan::Set(target, Nan::New("sha1").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(sha1)).ToLocalChecked());
     Nan::Set(target, Nan::New("x15").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(x15)).ToLocalChecked());
     Nan::Set(target, Nan::New("x16r").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(x16r)).ToLocalChecked());
+    Nan::Set(target, Nan::New("x16rt").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(x16rt)).ToLocalChecked());
     Nan::Set(target, Nan::New("fresh").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(fresh)).ToLocalChecked());
     Nan::Set(target, Nan::New("neoscrypt").ToLocalChecked(),Nan::GetFunction(Nan::New<FunctionTemplate>(neoscrypt)).ToLocalChecked());
     Nan::Set(target, Nan::New("yescrypt").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(yescrypt)).ToLocalChecked());
     Nan::Set(target, Nan::New("phi1612").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(phi1612)).ToLocalChecked());
+    Nan::Set(target, Nan::New("cuckoo").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(cuckoo)).ToLocalChecked()); 
 }
 NODE_MODULE(multihashing, init)
