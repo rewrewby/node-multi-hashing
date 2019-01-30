@@ -62,6 +62,22 @@
                 "sha3/hamsi.c",
 		        "sha3/sha2.c",
 		        "sha3/sph_sha2big.c",
+		        "x16rt/sph_blake.h"
+                "x16rt/sph_bmw.h"
+                "x16rt/sph_groestl.h"
+                "x16rt/sph_jh.h"
+                "x16rt/sph_keccak.h"
+                "x16rt/sph_skein.h"
+                "x16rt/sph_luffa.h"
+                "x16rt/sph_cubehash.h"
+                "x16rt/sph_shavite.h"
+                "x16rt/sph_simd.h"
+                "x16rt/sph_echo.h"
+                "x16rt/sph_hamsi.h"
+                "x16rt/sph_fugue.h"
+                "x16rt/sph_shabal.h"
+                "x16rt/sph_whirlpool.h"
+                "x16rt/sph_sha2.h"
                 "whirlpoolx.c",
                 "x11.c",
                 "x11ghost.c",
@@ -69,6 +85,7 @@
                 "x14.c",
                 "x15.c",
 		        "x16r.c",
+		        "x16rt.c",
                 "zr5.c",
                 "crypto/oaes_lib.c",
                 "crypto/c_keccak.c",
