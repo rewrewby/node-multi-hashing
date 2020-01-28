@@ -28,6 +28,7 @@ extern "C" {
     #include "x11.h"
     #include "x13.h"
     #include "x15.h"
+    #include "x16rt.h"
     #include "neoscrypt.h"
 }
 
